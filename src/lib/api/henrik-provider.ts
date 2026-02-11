@@ -142,6 +142,27 @@ export class HenrikDevProvider implements DataProvider {
     return data;
   }
 
+  async getMMRByPuuid(
+    region: string,
+    puuid: string
+  ): Promise<{ currenttier: number; currenttierpatched: string } | null> {
+    const key = `mmr:puuid:${region}:${puuid}`;
+    const cached = this.cache.get<{ currenttier: number; currenttierpatched: string }>(key);
+    if (cached) return cached;
+
+    try {
+      await this.rateLimiter.acquire();
+      const response = await this.http.get<{ data: { currenttier: number; currenttierpatched: string } }>(
+        `${BASE_URL}/valorant/v1/by-puuid/mmr/${encodeURIComponent(region)}/${encodeURIComponent(puuid)}`
+      );
+      const data = { currenttier: response.data.currenttier, currenttierpatched: response.data.currenttierpatched };
+      this.cache.set(key, data, CACHE_TTL.MMR);
+      return data;
+    } catch {
+      return null;
+    }
+  }
+
   async getLeaderboard(region: string): Promise<HenrikLeaderboardPlayer[]> {
     const key = cacheKeys.leaderboard(region);
     const cached = this.cache.get<HenrikLeaderboardPlayer[]>(key);

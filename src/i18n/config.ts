@@ -17,4 +17,19 @@ export const regionToLocale: Record<string, Locale> = {
   br: "pt-BR",
 };
 
+export const localeToDefaultRegion: Record<Locale, string> = {
+  en: "na",
+  "pt-BR": "br",
+  es: "latam",
+  ko: "kr",
+};
+
+export function detectLocaleFromHeader(acceptLanguage: string): Locale {
+  const normalized = acceptLanguage.toLowerCase();
+  if (normalized.includes("pt")) return "pt-BR";
+  if (normalized.includes("ko")) return "ko";
+  if (normalized.includes("es")) return "es";
+  return "en";
+}
+
 export const defaultLocale: Locale = "en";

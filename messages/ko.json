@@ -102,7 +102,9 @@
     "scoreboardUnavailable": "전체 매치 스코어보드는 현재 사용할 수 없습니다",
     "yourTeam": "아군",
     "enemyTeam": "적군",
-    "player": "플레이어"
+    "player": "플레이어",
+    "avgRank": "평균 랭크",
+    "lastMatch": "최근 경기"
   },
   "profile": {
     "invalidUrl": "잘못된 프로필 URL",
@@ -144,6 +146,7 @@
     "competitive": "경쟁전",
     "unrated": "일반전",
     "deathmatch": "데스매치",
+    "teamdeathmatch": "팀 데스매치",
     "spikerush": "스파이크 러시",
     "swiftplay": "스위프트플레이",
     "escalation": "에스컬레이션",

@@ -93,6 +93,7 @@ export type QueueType =
   | "competitive"
   | "unrated"
   | "deathmatch"
+  | "teamdeathmatch"
   | "spikerush"
   | "escalation"
   | "replication"

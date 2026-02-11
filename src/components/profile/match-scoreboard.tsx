@@ -3,12 +3,13 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import type { MatchDetail, MatchPlayer } from "@/types/valorant";
-import { cn, formatPercent } from "@/lib/utils";
+import { cn, formatPercent, buildProfileUrl } from "@/lib/utils";
 import { buildRankInfo } from "@/lib/rank-utils";
 
 interface MatchScoreboardProps {
   detail: MatchDetail;
   observedPuuid: string;
+  region: string;
 }
 
 // Assign party colors
@@ -39,7 +40,14 @@ function getPartyColorMap(players: MatchPlayer[]): Map<string, string> {
   return colorMap;
 }
 
-export function MatchScoreboard({ detail, observedPuuid }: MatchScoreboardProps) {
+function computeAverageRank(players: MatchPlayer[]): { avgTier: number; rankInfo: ReturnType<typeof buildRankInfo> } | null {
+  const rankedPlayers = players.filter((p) => p.rank >= 3);
+  if (rankedPlayers.length === 0) return null;
+  const avgTier = Math.round(rankedPlayers.reduce((sum, p) => sum + p.rank, 0) / rankedPlayers.length);
+  return { avgTier, rankInfo: buildRankInfo(avgTier) };
+}
+
+export function MatchScoreboard({ detail, observedPuuid, region }: MatchScoreboardProps) {
   const t = useTranslations("matches");
 
   // Determine which team the observed player is on
@@ -62,6 +70,7 @@ export function MatchScoreboard({ detail, observedPuuid }: MatchScoreboardProps)
         players={yourTeam}
         partyColors={partyColors}
         isWinning={yourScore > enemyScore}
+        region={region}
         t={t}
       />
       <TeamTable
@@ -70,6 +79,7 @@ export function MatchScoreboard({ detail, observedPuuid }: MatchScoreboardProps)
         players={enemyTeam}
         partyColors={partyColors}
         isWinning={enemyScore > yourScore}
+        region={region}
         t={t}
       />
     </div>
@@ -82,6 +92,7 @@ function TeamTable({
   players,
   partyColors,
   isWinning,
+  region,
   t,
 }: {
   label: string;
@@ -89,15 +100,36 @@ function TeamTable({
   players: MatchPlayer[];
   partyColors: Map<string, string>;
   isWinning: boolean;
+  region: string;
   t: ReturnType<typeof useTranslations<"matches">>;
 }) {
+  const avgRank = computeAverageRank(players);
+
   return (
     <div className="bg-white/[0.02] border border-white/[0.06] rounded-lg overflow-hidden">
       {/* Team Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-white/[0.06]">
-        <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
-          {label}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
+            {label}
+          </span>
+          {avgRank && (
+            <div className="flex items-center gap-1.5 bg-white/[0.04] rounded px-2 py-0.5">
+              {avgRank.rankInfo.iconUrl && (
+                <Image
+                  src={avgRank.rankInfo.iconUrl}
+                  alt={avgRank.rankInfo.tierName}
+                  width={14}
+                  height={14}
+                  unoptimized
+                />
+              )}
+              <span className="text-[10px] text-zinc-400">
+                {t("avgRank")}: <span className="text-zinc-200 font-medium">{avgRank.rankInfo.tierName}</span>
+              </span>
+            </div>
+          )}
+        </div>
         <span
           className={cn(
             "text-sm font-bold",
@@ -135,6 +167,7 @@ function TeamTable({
                 key={player.puuid}
                 player={player}
                 partyColor={partyColors.get(player.partyId)}
+                region={region}
               />
             ))}
           </tbody>
@@ -147,12 +180,15 @@ function TeamTable({
 function PlayerRow({
   player,
   partyColor,
+  region,
 }: {
   player: MatchPlayer;
   partyColor?: string;
+  region: string;
 }) {
   const kdDiff = player.stats.kills - player.stats.deaths;
   const rankInfo = buildRankInfo(player.rank);
+  const profileUrl = buildProfileUrl(region, player.name, player.tag);
 
   return (
     <tr
@@ -186,15 +222,19 @@ function PlayerRow({
               </div>
             )}
           </div>
-          {/* Name */}
-          <span
+          {/* Name - clickable link to profile */}
+          <a
+            href={profileUrl}
             className={cn(
-              "truncate max-w-[100px]",
-              player.isObserved ? "text-white font-semibold" : "text-zinc-300"
+              "truncate max-w-[100px] hover:underline transition-colors",
+              player.isObserved
+                ? "text-white font-semibold hover:text-red-300"
+                : "text-zinc-300 hover:text-white"
             )}
+            title={`${player.name}#${player.tag}`}
           >
             {player.name}
-          </span>
+          </a>
         </div>
       </td>
 
@@ -205,11 +245,14 @@ function PlayerRow({
             <Image
               src={rankInfo.iconUrl}
               alt={rankInfo.tierName}
-              width={14}
-              height={14}
+              width={16}
+              height={16}
               unoptimized
+              title={rankInfo.tierName}
             />
-          ) : null}
+          ) : (
+            <span className="text-[9px] text-zinc-600">-</span>
+          )}
         </div>
       </td>
 

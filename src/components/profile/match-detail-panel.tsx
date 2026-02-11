@@ -27,7 +27,7 @@ export function MatchDetailPanel({ match, region, puuid }: MatchDetailPanelProps
     async function fetchMatchDetail() {
       try {
         const res = await fetch(
-          `/api/match/${encodeURIComponent(match.matchId)}?puuid=${encodeURIComponent(puuid)}`
+          `/api/match/${encodeURIComponent(match.matchId)}?puuid=${encodeURIComponent(puuid)}&region=${encodeURIComponent(region)}`
         );
         if (!res.ok) {
           if (!cancelled) setScoreboardState("error");
@@ -67,7 +67,7 @@ export function MatchDetailPanel({ match, region, puuid }: MatchDetailPanelProps
         {/* Scoreboard */}
         {scoreboardState === "loading" && <ScoreboardSkeleton />}
         {scoreboardState === "loaded" && matchDetail && (
-          <MatchScoreboard detail={matchDetail} observedPuuid={puuid} />
+          <MatchScoreboard detail={matchDetail} observedPuuid={puuid} region={region} />
         )}
 
         {/* Shot Distribution */}

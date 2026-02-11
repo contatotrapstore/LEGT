@@ -102,7 +102,9 @@
     "scoreboardUnavailable": "El marcador completo no esta disponible en este momento",
     "yourTeam": "Tu Equipo",
     "enemyTeam": "Equipo Enemigo",
-    "player": "Jugador"
+    "player": "Jugador",
+    "avgRank": "Rango Promedio",
+    "lastMatch": "Última Partida"
   },
   "profile": {
     "invalidUrl": "URL de Perfil Invalida",
@@ -144,6 +146,7 @@
     "competitive": "Competitivo",
     "unrated": "Sin Rango",
     "deathmatch": "Combate a Muerte",
+    "teamdeathmatch": "Combate a Muerte en Equipo",
     "spikerush": "Spike Rush",
     "swiftplay": "Swiftplay",
     "escalation": "Escalada",

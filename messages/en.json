@@ -102,7 +102,9 @@
     "scoreboardUnavailable": "Full match scoreboard is not available at this time",
     "yourTeam": "Your Team",
     "enemyTeam": "Enemy Team",
-    "player": "Player"
+    "player": "Player",
+    "avgRank": "Avg Rank",
+    "lastMatch": "Last Match"
   },
   "profile": {
     "invalidUrl": "Invalid Profile URL",
@@ -144,6 +146,7 @@
     "competitive": "Competitive",
     "unrated": "Unrated",
     "deathmatch": "Deathmatch",
+    "teamdeathmatch": "Team Deathmatch",
     "spikerush": "Spike Rush",
     "swiftplay": "Swiftplay",
     "escalation": "Escalation",

@@ -306,12 +306,14 @@ export function transformLifetimeMatchToSummary(
     Competitive: "competitive",
     Unrated: "unrated",
     Deathmatch: "deathmatch",
+    "Team Deathmatch": "teamdeathmatch",
     "Spike Rush": "spikerush",
     Escalation: "escalation",
     Replication: "replication",
     Swiftplay: "swiftplay",
     Premier: "premier",
     Custom: "custom",
+    "Custom Game": "custom",
   };
 
   const rankInfo = buildRankInfo(s.tier);
@@ -465,12 +467,14 @@ export function transformMatchToDetail(
     modeRaw === "competitive" ? "competitive"
     : modeRaw === "unrated" ? "unrated"
     : modeRaw === "deathmatch" ? "deathmatch"
+    : modeRaw === "team deathmatch" ? "teamdeathmatch"
     : modeRaw === "spike rush" ? "spikerush"
     : modeRaw === "swiftplay" ? "swiftplay"
     : modeRaw === "escalation" ? "escalation"
     : modeRaw === "replication" ? "replication"
     : modeRaw === "premier" ? "premier"
     : modeRaw === "custom game" ? "custom"
+    : modeRaw === "custom" ? "custom"
     : "unknown";
 
   return {

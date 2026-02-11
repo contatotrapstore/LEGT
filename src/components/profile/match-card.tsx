@@ -87,7 +87,7 @@ export function MatchCard({
                   {match.map}
                 </span>
                 <span className="text-[11px] text-zinc-500 bg-white/[0.04] px-1.5 py-0.5 rounded">
-                  {tModes(match.mode as "competitive" | "unrated" | "deathmatch" | "spikerush" | "swiftplay" | "escalation" | "replication" | "premier" | "custom" | "unknown")}
+                  {tModes(match.mode as "competitive" | "unrated" | "deathmatch" | "teamdeathmatch" | "spikerush" | "swiftplay" | "escalation" | "replication" | "premier" | "custom" | "unknown")}
                 </span>
               </div>
               <div className="flex items-center gap-2 mt-0.5">

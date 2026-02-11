@@ -54,8 +54,17 @@ export function SearchBar({
     return () => document.removeEventListener("keydown", handleKey);
   }, []);
 
+  // Read auto-detected region from cookie on mount
+  useEffect(() => {
+    const match = document.cookie.match(/PREFERRED_REGION=(\w+)/);
+    if (match && REGIONS.some((r) => r.value === match[1])) {
+      setRegion(match[1]);
+    }
+  }, []);
+
   const handleRegionChange = (newRegion: string) => {
     setRegion(newRegion);
+    document.cookie = `PREFERRED_REGION=${newRegion};path=/;max-age=31536000`;
     const locale = regionToLocale[newRegion];
     if (locale) {
       document.cookie = `NEXT_LOCALE=${locale};path=/;max-age=31536000`;

@@ -102,7 +102,9 @@
     "scoreboardUnavailable": "Placar completo da partida não está disponível no momento",
     "yourTeam": "Seu Time",
     "enemyTeam": "Time Inimigo",
-    "player": "Jogador"
+    "player": "Jogador",
+    "avgRank": "Rank Médio",
+    "lastMatch": "Última Partida"
   },
   "profile": {
     "invalidUrl": "URL de Perfil Inválida",
@@ -144,6 +146,7 @@
     "competitive": "Competitivo",
     "unrated": "Sem Ranque",
     "deathmatch": "Mata-Mata",
+    "teamdeathmatch": "Mata-Mata em Equipe",
     "spikerush": "Spike Rush",
     "swiftplay": "Swiftplay",
     "escalation": "Escalada",

@@ -36,8 +36,8 @@ export default async function RootLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} className="dark">
-      <body className={`${inter.variable} antialiased min-h-screen flex flex-col`}>
+    <html lang={locale} className="dark" suppressHydrationWarning>
+      <body className={`${inter.variable} antialiased min-h-screen flex flex-col`} suppressHydrationWarning>
         <NextIntlClientProvider messages={messages} locale={locale}>
           <AuthProvider>
             <Header />
