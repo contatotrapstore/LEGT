@@ -1,11 +1,21 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import type { ProfileData } from "@/types/valorant";
+import type { ActData, ProfileData } from "@/types/valorant";
 import { parseRiotId, buildRiotIdSlug } from "@/lib/utils";
 import { RankThemeProvider } from "@/components/providers/theme-provider";
 import { PlayerBanner } from "@/components/profile/player-banner";
 import { RankJourney } from "@/components/profile/rank-journey";
 import { ProfileContent } from "@/components/profile/profile-content";
+import { getProvider } from "@/lib/api/henrik-provider";
+import { ApiError } from "@/lib/api/http-client";
+import { buildRankInfo } from "@/lib/rank-utils";
+import {
+  computePlayerStats,
+  computeAgentStats,
+  computeMapStats,
+  transformLifetimeMatchToSummary,
+  correlateMatchesWithMMR,
+} from "@/lib/stats-calculator";
 
 interface ProfilePageProps {
   params: Promise<{ region: string; riotId: string }>;
@@ -19,21 +29,82 @@ interface ProfileResponse {
 
 async function getProfile(
   region: string,
-  riotId: string
+  name: string,
+  tag: string
 ): Promise<ProfileResponse> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   try {
-    const res = await fetch(
-      `${baseUrl}/api/profile/${region}/${riotId}`,
-      { cache: "no-store" }
-    );
-    const json = await res.json();
-    if (!res.ok) {
-      return { error: json.error, code: json.code };
+    const provider = getProvider();
+
+    // Account is required
+    let account;
+    try {
+      account = await provider.getAccountByRiotId(name, tag);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        return { error: err.userFriendlyMessage, code: `HENRIK_${err.henrikCode}` };
+      }
+      throw err;
     }
-    return { data: json.data };
-  } catch {
-    return { error: "Failed to connect to the server." };
+
+    // Fetch remaining data in parallel with graceful fallbacks
+    const [mmr, rawMatches, mmrHistory] = await Promise.all([
+      provider.getMMRByRiotId(region, name, tag).catch(() => null),
+      provider.getLifetimeMatches(region, name, tag, { size: 20 }).catch(() => []),
+      provider.getMMRHistoryByRiotId(region, name, tag).catch(() => []),
+    ]);
+
+    const stats = computePlayerStats(rawMatches);
+    const agentStats = computeAgentStats(rawMatches);
+    const mapStats = computeMapStats(rawMatches);
+
+    const recentMatches = rawMatches.map((m) =>
+      transformLifetimeMatchToSummary(m)
+    );
+    correlateMatchesWithMMR(recentMatches, mmrHistory);
+
+    const actHistory: ActData[] = mmr
+      ? Object.entries(mmr.seasonalData)
+          .filter(([, data]) => data.gamesPlayed > 0)
+          .map(([actId, data]) => ({
+            actId,
+            actName: actId.replace(/e(\d+)a(\d+)/i, "Episode $1 Act $2"),
+            peakRank: buildRankInfo(
+              Math.max(...data.actRankWins.map((w) => w.tier), data.finalRank)
+            ),
+            wins: data.wins,
+            losses: data.losses,
+            rr: 0,
+          }))
+          .reverse()
+          .slice(0, 6)
+      : [];
+
+    const profile: ProfileData = {
+      account,
+      mmr: mmr ?? {
+        currentRank: buildRankInfo(0),
+        peakRank: buildRankInfo(0),
+        rankingInTier: 0,
+        elo: 0,
+        gamesNeededForRating: 0,
+        seasonalData: {},
+      },
+      stats,
+      agentStats,
+      recentMatches,
+      actHistory,
+      mapStats,
+      rawMatches,
+      mmrHistory,
+    };
+
+    return { data: profile };
+  } catch (error) {
+    if (error instanceof ApiError) {
+      return { error: error.userFriendlyMessage, code: `HENRIK_${error.henrikCode}` };
+    }
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return { error: message, code: "UNKNOWN" };
   }
 }
 
@@ -44,7 +115,7 @@ export async function generateMetadata({
   const parsed = parseRiotId(riotId);
   if (!parsed) return { title: "Player Not Found" };
 
-  const result = await getProfile(region, riotId);
+  const result = await getProfile(region, parsed.name, parsed.tag);
   if (!result.data) return { title: `${parsed.name}#${parsed.tag}` };
 
   const profile = result.data;
@@ -90,7 +161,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     );
   }
 
-  const result = await getProfile(region, riotId);
+  const result = await getProfile(region, parsed.name, parsed.tag);
 
   if (!result.data) {
     const isDataUnavailable = result.code === "HENRIK_24";

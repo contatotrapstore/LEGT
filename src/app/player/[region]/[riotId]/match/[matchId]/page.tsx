@@ -5,25 +5,19 @@ import { MatchSummaryHeader } from "@/components/match/match-summary";
 import { PlayerPerformance } from "@/components/match/player-performance";
 import { TeamTable } from "@/components/match/team-table";
 import { tierToRankKey } from "@/lib/rank-utils";
+import { getProvider } from "@/lib/api/henrik-provider";
+import { transformMatchToDetail } from "@/lib/stats-calculator";
 import Link from "next/link";
 
 interface MatchPageProps {
   params: Promise<{ region: string; riotId: string; matchId: string }>;
 }
 
-async function getMatch(
-  matchId: string,
-  region: string
-): Promise<MatchDetail | null> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+async function getMatch(matchId: string): Promise<MatchDetail | null> {
   try {
-    const res = await fetch(
-      `${baseUrl}/api/match/${matchId}?region=${region}`,
-      { cache: "no-store" }
-    );
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.data;
+    const provider = getProvider();
+    const raw = await provider.getMatchById(matchId);
+    return transformMatchToDetail(raw, "");
   } catch {
     return null;
   }
@@ -41,7 +35,7 @@ export default async function MatchPage({ params }: MatchPageProps) {
     );
   }
 
-  const match = await getMatch(matchId, region);
+  const match = await getMatch(matchId);
 
   if (!match) {
     return (
