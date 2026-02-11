@@ -103,8 +103,7 @@
     "yourTeam": "Tu Equipo",
     "enemyTeam": "Equipo Enemigo",
     "player": "Jugador",
-    "avgRank": "Rango Promedio",
-    "lastMatch": "Última Partida"
+    "avgRank": "Rango Promedio"
   },
   "profile": {
     "invalidUrl": "URL de Perfil Invalida",

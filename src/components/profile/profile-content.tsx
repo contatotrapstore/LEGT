@@ -9,7 +9,6 @@ import {
   computeMapStats,
 } from "@/lib/stats-calculator";
 import { ModeTabs, type ProfileMode } from "./mode-tabs";
-import { LastMatchOverlay } from "./last-match-overlay";
 import { StatsSnapshot } from "./stats-snapshot";
 import { AgentsSection } from "./agents-section";
 import { MapStatsSection } from "./map-stats-section";
@@ -77,14 +76,6 @@ export function ProfileContent({ profile, region, riotId }: ProfileContentProps)
         onModeChange={setActiveMode}
         counts={modeCounts}
       />
-
-      {activeMode === "overview" && profile.recentMatches.length > 0 && (
-        <LastMatchOverlay
-          match={profile.recentMatches[0]}
-          region={region}
-          puuid={profile.account.puuid}
-        />
-      )}
 
       {stats.matchesPlayed > 0 ? (
         <>

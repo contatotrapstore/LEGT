@@ -103,8 +103,7 @@
     "yourTeam": "Your Team",
     "enemyTeam": "Enemy Team",
     "player": "Player",
-    "avgRank": "Avg Rank",
-    "lastMatch": "Last Match"
+    "avgRank": "Avg Rank"
   },
   "profile": {
     "invalidUrl": "Invalid Profile URL",

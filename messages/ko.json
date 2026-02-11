@@ -103,8 +103,7 @@
     "yourTeam": "아군",
     "enemyTeam": "적군",
     "player": "플레이어",
-    "avgRank": "평균 랭크",
-    "lastMatch": "최근 경기"
+    "avgRank": "평균 랭크"
   },
   "profile": {
     "invalidUrl": "잘못된 프로필 URL",

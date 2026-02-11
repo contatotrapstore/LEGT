@@ -103,8 +103,7 @@
     "yourTeam": "Seu Time",
     "enemyTeam": "Time Inimigo",
     "player": "Jogador",
-    "avgRank": "Rank Médio",
-    "lastMatch": "Última Partida"
+    "avgRank": "Rank Médio"
   },
   "profile": {
     "invalidUrl": "URL de Perfil Inválida",
